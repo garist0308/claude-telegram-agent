@@ -14,9 +14,12 @@ import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { join, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const SERVER = join(import.meta.dirname, 'server.mjs');
+// import.meta.dirname тут не годится: его нет до Node 20.11, а engines
+// в package.json обещает 18+.
+const SERVER = join(dirname(fileURLToPath(import.meta.url)), 'server.mjs');
 
 /** Поднимает сервер, отправляет запросы, возвращает распарсенные ответы и сырой stdout. */
 function talk(requests, { env = {}, timeoutMs = 20000 } = {}) {
