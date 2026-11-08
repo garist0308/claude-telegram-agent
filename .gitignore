@@ -1,0 +1,8 @@
+node_modules/
+*.log
+.DS_Store
+
+# Креды и строка сессии живут в ~/.telegram-mcp, а не здесь.
+# Эта строка — страховка на случай, если TELEGRAM_MCP_HOME указать в репозиторий.
+credentials.json
+.telegram-mcp/

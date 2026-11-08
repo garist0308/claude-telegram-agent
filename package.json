@@ -1,0 +1,21 @@
+{
+  "name": "claude-telegram-agent",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "MCP-сервер: Claude Code читает и отправляет сообщения/файлы в Telegram с личного аккаунта (MTProto)",
+  "scripts": {
+    "login": "node login.mjs",
+    "check": "node check.mjs",
+    "start": "node server.mjs",
+    "test": "node --test test-match.mjs test-config.mjs test-server.mjs"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.2",
+    "telegram": "^2.26.22",
+    "zod": "^3.25.76"
+  }
+}
