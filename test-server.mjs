@@ -90,7 +90,7 @@ test('в stdout только JSON-RPC, без постороннего выво�
   }
 });
 
-test('объявлены все семь инструментов', async () => {
+test('объявлены все восемь инструментов', async () => {
   const { responses } = await talk([INIT, INITED, { jsonrpc: '2.0', id: 2, method: 'tools/list' }]);
   const names = responses.find((r) => r.id === 2).result.tools.map((t) => t.name).sort();
   assert.deepEqual(names, [
@@ -98,10 +98,17 @@ test('объявлены все семь инструментов', async () => 
     'telegram_find_recipient',
     'telegram_list_dialogs',
     'telegram_read_messages',
+    'telegram_search_messages',
     'telegram_send_file',
     'telegram_send_message',
     'telegram_whoami',
   ]);
+});
+
+test('у поиска обязательны peer, expect_title и query', async () => {
+  const { responses } = await talk([INIT, INITED, { jsonrpc: '2.0', id: 2, method: 'tools/list' }]);
+  const search = responses.find((r) => r.id === 2).result.tools.find((t) => t.name === 'telegram_search_messages');
+  assert.deepEqual(search.inputSchema.required.sort(), ['expect_title', 'peer', 'query']);
 });
 
 test('у отправки обязательны peer, text и expect_title; reply_to_message_id необязателен', async () => {

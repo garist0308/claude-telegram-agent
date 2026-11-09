@@ -162,10 +162,11 @@ export async function sendMessage(entity, text, { replyTo } = {}) {
  * Сообщения диалога, от новых к старым. Медиа не скачивается — только тип.
  * offsetId, если задан, возвращает сообщения строго старше него: так читают
  * чат полностью, вызывая инструмент несколько раз подряд (постранично).
+ * search, если задан, ищет по тексту вместо того, чтобы отдавать все подряд.
  */
-export async function getMessages(entity, { limit = 20, offsetId = 0 } = {}) {
+export async function getMessages(entity, { limit = 20, offsetId = 0, search } = {}) {
   const c = await getClient();
-  const messages = await c.getMessages(entity, { limit, offsetId });
+  const messages = await c.getMessages(entity, { limit, offsetId, search });
   return messages.map((m) => ({
     id: String(m.id),
     date: m.date ? new Date(m.date * 1000).toISOString() : null,

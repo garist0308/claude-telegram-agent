@@ -42,6 +42,7 @@
 │  telegram_find_recipient    «Маше» → кандидаты + уверенность   │
 │  telegram_send_message      отправка текста и ответов           │
 │  telegram_read_messages     чтение истории, расшифровка голоса │
+│  telegram_search_messages   поиск сообщений по тексту          │
 │  telegram_send_file         отправка файла с компьютера        │
 │  telegram_download_file     скачивание файла из сообщения      │
 │                                                                 │
