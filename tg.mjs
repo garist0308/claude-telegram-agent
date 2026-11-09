@@ -176,6 +176,31 @@ export async function getMessages(entity, { limit = 20, offsetId = 0 } = {}) {
 }
 
 /**
+ * Метаданные файла конкретного сообщения, без скачивания — чтобы проверить
+ * размер и подобрать имя заранее. null, если у сообщения нет медиа.
+ */
+export async function getMessageFile(entity, msgId) {
+  const c = await getClient();
+  const [message] = await c.getMessages(entity, { ids: [Number(msgId)] });
+  if (!message) throw new Error(`Сообщение с id ${msgId} не найдено в этом диалоге.`);
+  const file = message.file;
+  if (!message.media || !file) return null;
+  return {
+    name: file.name ?? null,
+    mimeType: file.mimeType ?? null,
+    size: file.size != null ? Number(file.size) : null,
+  };
+}
+
+/** Собственно скачивание медиа сообщения на диск, в outputFile. */
+export async function downloadMessageFile(entity, msgId, outputFile) {
+  const c = await getClient();
+  const [message] = await c.getMessages(entity, { ids: [Number(msgId)] });
+  if (!message || !message.media) throw new Error(`У сообщения ${msgId} нет медиа для скачивания.`);
+  await message.downloadMedia({ outputFile });
+}
+
+/**
  * Расшифровка голосового или видео-кружка в текст — функция Telegram Premium
  * (messages.transcribeAudio). Если текст не приходит сразу (pending), ждём
  * финальное обновление UpdateTranscribedAudio до timeoutMs.

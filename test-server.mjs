@@ -90,10 +90,11 @@ test('в stdout только JSON-RPC, без постороннего выво�
   }
 });
 
-test('объявлены все шесть инструментов', async () => {
+test('объявлены все семь инструментов', async () => {
   const { responses } = await talk([INIT, INITED, { jsonrpc: '2.0', id: 2, method: 'tools/list' }]);
   const names = responses.find((r) => r.id === 2).result.tools.map((t) => t.name).sort();
   assert.deepEqual(names, [
+    'telegram_download_file',
     'telegram_find_recipient',
     'telegram_list_dialogs',
     'telegram_read_messages',
@@ -124,6 +125,9 @@ test('у чтения обязательны peer и expect_title; offset_id, li
 
   const sendFile = tools.find((t) => t.name === 'telegram_send_file');
   assert.deepEqual(sendFile.inputSchema.required.sort(), ['expect_title', 'file_path', 'peer']);
+
+  const download = tools.find((t) => t.name === 'telegram_download_file');
+  assert.deepEqual(download.inputSchema.required.sort(), ['dest_dir', 'expect_title', 'message_id', 'peer']);
 });
 
 test('telegram_send_file отказывает по несуществующему файлу раньше, чем спрашивает креды', async () => {
@@ -161,6 +165,25 @@ test('telegram_send_file отказывает по относительному 
   ]);
   const res = responses.find((r) => r.id === 2);
   assert.ok(res.result?.isError, 'относительный путь должен быть ошибкой');
+  assert.match(res.result.content[0].text, /абсолютным путём/);
+});
+
+test('telegram_download_file отказывает по относительному dest_dir раньше, чем спрашивает креды', async () => {
+  const { responses } = await talk([
+    INIT,
+    INITED,
+    {
+      jsonrpc: '2.0',
+      id: 2,
+      method: 'tools/call',
+      params: {
+        name: 'telegram_download_file',
+        arguments: { peer: '@someone', message_id: '1', dest_dir: 'relative-dir', expect_title: 'Кто-то' },
+      },
+    },
+  ]);
+  const res = responses.find((r) => r.id === 2);
+  assert.ok(res.result?.isError, 'относительный dest_dir должен быть ошибкой');
   assert.match(res.result.content[0].text, /абсолютным путём/);
 });
 
