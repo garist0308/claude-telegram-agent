@@ -289,6 +289,8 @@ server.registerTool(
       'telegram_find_recipient) и expect_title — имя, которое ты ожидаешь у этого получателя. ' +
       'Сервер сам сверит их с настоящей сущностью Telegram и откажется отправлять при расхождении. ' +
       'Отправка возможна только человеку в личный диалог: группы, каналы и боты запрещены. ' +
+      'Чтобы ответить на конкретное сообщение (а не просто написать новое), передай его id как ' +
+      'reply_to_message_id — id берётся из telegram_read_messages или telegram_search_messages. ' +
       'Вызывай ровно один раз на запрос и только когда получатель определён однозначно.',
     inputSchema: {
       peer: z.string().min(1).describe('@username получателя или его числовой id из telegram_find_recipient'),
@@ -297,10 +299,14 @@ server.registerTool(
         .string()
         .min(1)
         .describe('Имя получателя, которое ты ожидаешь увидеть (поле title из telegram_find_recipient)'),
+      reply_to_message_id: z
+        .union([z.string(), z.number()])
+        .optional()
+        .describe('id сообщения, на которое отвечаем (необязательно) — делает это ответом, а не новым сообщением'),
     },
     annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true },
   },
-  async ({ peer, text, expect_title }) => {
+  async ({ peer, text, expect_title, reply_to_message_id }) => {
     try {
       const body = text.trim();
       if (!body) return fail('Пустой текст сообщения — отправлять нечего.');
@@ -314,23 +320,27 @@ server.registerTool(
       if (!verified.ok) return fail(verified.message);
       const { target } = verified;
 
+      const replyTo = reply_to_message_id != null ? Number(reply_to_message_id) : undefined;
+
       // 3. Сухой прогон.
       if (flags.dryRun) {
-        appendSentLog({ dryRun: true, peer, title: target.title, id: target.id, text: body });
+        appendSentLog({ dryRun: true, peer, title: target.title, id: target.id, text: body, replyTo });
         return ok(
           `СУХОЙ ПРОГОН (TELEGRAM_MCP_DRY_RUN=1), сообщение НЕ отправлено.\n` +
-            `Ушло бы: ${target.title}${target.username ? ` (@${target.username})` : ` (id: ${target.id})`}\n` +
+            `Ушло бы: ${target.title}${target.username ? ` (@${target.username})` : ` (id: ${target.id})`}` +
+            `${replyTo ? ` в ответ на сообщение ${replyTo}` : ''}\n` +
             `Текст: ${body}`,
         );
       }
 
       // 4. Отправка.
-      const res = await sendMessage(target.entity, body);
+      const res = await sendMessage(target.entity, body, { replyTo });
       recordSend();
-      appendSentLog({ peer, title: target.title, id: target.id, messageId: res.messageId, text: body });
+      appendSentLog({ peer, title: target.title, id: target.id, messageId: res.messageId, text: body, replyTo });
 
       return ok(
-        `Отправлено ${target.title}${target.username ? ` (@${target.username})` : ''}: ${body}`,
+        `Отправлено ${target.title}${target.username ? ` (@${target.username})` : ''}` +
+          `${replyTo ? ` в ответ на сообщение ${replyTo}` : ''}: ${body}`,
       );
     } catch (e) {
       return fail(explain(e));

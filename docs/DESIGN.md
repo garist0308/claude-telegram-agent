@@ -40,7 +40,7 @@
 │  telegram_whoami            чей аккаунт подключён              │
 │  telegram_list_dialogs      диалоги: id, title, username       │
 │  telegram_find_recipient    «Маше» → кандидаты + уверенность   │
-│  telegram_send_message      отправка текста, с проверками      │
+│  telegram_send_message      отправка текста и ответов           │
 │  telegram_read_messages     чтение истории, расшифровка голоса │
 │  telegram_send_file         отправка файла с компьютера        │
 │  telegram_download_file     скачивание файла из сообщения      │

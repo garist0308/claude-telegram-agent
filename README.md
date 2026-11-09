@@ -61,7 +61,7 @@ claude mcp add telegram -s user -- node "$(pwd)/server.mjs"
 | `telegram_whoami` | Чей аккаунт подключён. Проверка связи |
 | `telegram_list_dialogs` | Список диалогов: id, title, username, type. Без текстов сообщений |
 | `telegram_find_recipient` | «Маше» → кандидаты с уровнем совпадения. Сам не выбирает |
-| `telegram_send_message` | Отправка текста. Требует `peer` + `expect_title`, сверяет их между собой |
+| `telegram_send_message` | Отправка текста. Требует `peer` + `expect_title`, сверяет их между собой; `reply_to_message_id` — чтобы ответить на конкретное сообщение |
 | `telegram_read_messages` | Сообщения диалога; `offset_id` — постраничный проход по всей истории; голосовые и видео-кружки расшифровываются в текст (Premium) |
 | `telegram_send_file` | Отправка файла с этого компьютера по абсолютному пути. Те же проверки, что у отправки сообщения |
 | `telegram_download_file` | Скачивание файла из конкретного сообщения (`message_id` из `telegram_read_messages`) в папку на диске |
@@ -108,6 +108,8 @@ npm test   # Telegram не нужен
 
 ## История изменений
 
+- **2026-11-09** — `reply_to_message_id` у `telegram_send_message`: ответ на
+  конкретное сообщение, а не просто новое сообщение в чат.
 - **2026-11-09** — `telegram_download_file`: скачивание файла из сообщения
   (документ, фото, голосовое, видео-кружок) на диск этого компьютера, чтобы
   открыть и посмотреть напрямую.

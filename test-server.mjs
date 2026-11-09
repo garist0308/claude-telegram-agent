@@ -104,10 +104,11 @@ test('объявлены все семь инструментов', async () => 
   ]);
 });
 
-test('у отправки обязательны peer, text и expect_title', async () => {
+test('у отправки обязательны peer, text и expect_title; reply_to_message_id необязателен', async () => {
   const { responses } = await talk([INIT, INITED, { jsonrpc: '2.0', id: 2, method: 'tools/list' }]);
   const send = responses.find((r) => r.id === 2).result.tools.find((t) => t.name === 'telegram_send_message');
   assert.deepEqual(send.inputSchema.required.sort(), ['expect_title', 'peer', 'text']);
+  assert.ok('reply_to_message_id' in send.inputSchema.properties, 'нет reply_to_message_id в схеме');
 });
 
 test('у чтения обязательны peer и expect_title; offset_id, limit, transcribe необязательны', async () => {

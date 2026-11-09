@@ -148,10 +148,13 @@ export async function resolvePeer(peer) {
   };
 }
 
-/** Собственно отправка. Проверки — на уровне server.mjs, здесь только запрос. */
-export async function sendMessage(entity, text) {
+/**
+ * Собственно отправка. Проверки — на уровне server.mjs, здесь только запрос.
+ * replyTo, если задан, делает сообщение ответом на конкретное сообщение.
+ */
+export async function sendMessage(entity, text, { replyTo } = {}) {
   const c = await getClient();
-  const res = await c.sendMessage(entity, { message: text, parseMode: undefined });
+  const res = await c.sendMessage(entity, { message: text, parseMode: undefined, replyTo });
   return { messageId: res?.id ? String(res.id) : null };
 }
 
