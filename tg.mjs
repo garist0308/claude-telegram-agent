@@ -204,6 +204,13 @@ export async function downloadMessageFile(entity, msgId, outputFile) {
   await message.downloadMedia({ outputFile });
 }
 
+/** Реакция на сообщение. Пустой emoji снимает реакцию, а не ставит пустую. */
+export async function sendReaction(entity, msgId, emoji) {
+  const c = await getClient();
+  const reaction = emoji ? [new Api.ReactionEmoji({ emoticon: emoji })] : [];
+  await c.invoke(new Api.messages.SendReaction({ peer: entity, msgId: Number(msgId), reaction }));
+}
+
 /**
  * Расшифровка голосового или видео-кружка в текст — функция Telegram Premium
  * (messages.transcribeAudio). Если текст не приходит сразу (pending), ждём
